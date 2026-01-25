@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import {
   DotSettings,
   defaultSettings,
@@ -14,7 +20,9 @@ interface SettingsContextType {
   isLoading: boolean;
 }
 
-const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
+const SettingsContext = createContext<SettingsContextType | undefined>(
+  undefined,
+);
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<DotSettings>(defaultSettings);
@@ -24,6 +32,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     loadSettings().then((loaded) => {
       setSettings(loaded);
       setIsLoading(false);
+      // Ensure native preferences are synced on startup
+      saveSettings(loaded);
     });
   }, []);
 

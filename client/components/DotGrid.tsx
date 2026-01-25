@@ -38,10 +38,10 @@ const Dot = React.memo(function Dot({
       pulseScale.value = withRepeat(
         withSequence(
           withTiming(1.2, { duration: 800 }),
-          withTiming(1, { duration: 800 })
+          withTiming(1, { duration: 800 }),
         ),
         -1,
-        true
+        true,
       );
     }
   }, [isToday, showTodayHighlight]);
@@ -108,41 +108,57 @@ export default function DotGrid() {
   const totalDays = getDaysInYear(currentYear);
   const currentDayOfYear = getDayOfYear();
 
-  const { columns, rows, dotSize, actualSpacing } = useMemo(() => {
+  const { columns, rows, dotSize, actualSpacing, topPadding } = useMemo(() => {
     const horizontalPadding = 40;
-    const verticalPadding = insets.top + insets.bottom + 120;
+    // We don't use verticalPadding directly for layout logic inside the hook for rows,
+    // but the concept of "availableHeight" usually subtracts it. 
+    // However, topPadding is now "where we start", so it affects available space if we want to be strict.
+    // For now, let's pass it out to be used in styling or margin if needed, or if it simply shifts content.
+    // Actually, DotGrid aligns "center" currently in styles.wrapper if we look at styles.
+    // If we want "Top Padding" specifically, we probably want to change justifyContent or add marginTop.
 
-    const availableWidth = screenWidth - horizontalPadding * 2;
-    const availableHeight = screenHeight - verticalPadding;
+    // Let's assume user wants 'topPadding' to push content down from the top.
 
-    const cols = 7;
+    // Align with native wallpaper constraint and dynamic top padding for consistency check? 
+    // The native code uses `topPadding` to set specific Y-coordinates.
+
+    const maxGridHeight = screenHeight * 0.5;
+
+    const cols = settings.gridCols || 15;
     const rowsNeeded = Math.ceil(totalDays / cols);
 
+    const availableWidth = screenWidth - horizontalPadding * 2;
     const maxDotSizeByWidth =
       (availableWidth - (cols - 1) * settings.dotSpacing) / cols;
-    const maxDotSizeByHeight =
-      (availableHeight - (rowsNeeded - 1) * settings.dotSpacing) / rowsNeeded;
 
+    const maxDotSizeByHeight =
+      (maxGridHeight - (rowsNeeded - 1) * settings.dotSpacing) / rowsNeeded;
+
+    // Use user setting but clamp to available space
     let calculatedDotSize = Math.min(
+      settings.dotSize,
       maxDotSizeByWidth,
       maxDotSizeByHeight,
-      settings.dotSize + 4
+      100
     );
-    calculatedDotSize = Math.max(calculatedDotSize, 6);
+    calculatedDotSize = Math.max(calculatedDotSize, 2);
 
     return {
       columns: cols,
       rows: rowsNeeded,
       dotSize: calculatedDotSize,
       actualSpacing: settings.dotSpacing,
+      topPadding: settings.topPadding
     };
   }, [
     screenWidth,
     screenHeight,
     insets,
     totalDays,
-    settings.dotSize,
     settings.dotSpacing,
+    settings.topPadding,
+    settings.gridCols,
+    settings.dotSize
   ]);
 
   const dots = useMemo(() => {
@@ -174,7 +190,7 @@ export default function DotGrid() {
   const gridWidth = columns * dotSize + (columns - 1) * actualSpacing;
 
   return (
-    <View style={[styles.container, { width: gridWidth }]}>
+    <View style={[styles.container, { width: gridWidth, marginTop: topPadding }]}>
       <View style={styles.grid}>
         {dots.map((dot, index) => (
           <View

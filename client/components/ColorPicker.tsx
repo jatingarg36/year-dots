@@ -7,7 +7,7 @@ import {
   TextInput,
   Platform,
 } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import Feather from "@expo/vector-icons/Feather";
 import * as Haptics from "expo-haptics";
 
 import { ThemedText } from "@/components/ThemedText";
@@ -21,7 +21,7 @@ interface ColorPickerProps {
 }
 
 const PRESET_COLORS = [
-  "#FFD700",
+  "#FFFFFF",
   "#FF6B35",
   "#FF4757",
   "#2ED573",
@@ -31,7 +31,6 @@ const PRESET_COLORS = [
   "#FFA502",
   "#2BCBBA",
   "#4B7BEC",
-  "#FFFFFF",
   "#E8E8E8",
   "#8A8A8A",
   "#4A4A4A",
@@ -82,11 +81,7 @@ export default function ColorPicker({
           <ThemedText type="small" style={{ color: theme.textSecondary }}>
             {value.toUpperCase()}
           </ThemedText>
-          <Feather
-            name="chevron-right"
-            size={20}
-            color={theme.textSecondary}
-          />
+          <Feather name="chevron-right" size={20} color={theme.textSecondary} />
         </View>
       </Pressable>
 
@@ -109,10 +104,7 @@ export default function ColorPicker({
           >
             <View style={styles.modalHeader}>
               <ThemedText type="h4">{label}</ThemedText>
-              <Pressable
-                onPress={() => setModalVisible(false)}
-                hitSlop={20}
-              >
+              <Pressable onPress={() => setModalVisible(false)} hitSlop={20}>
                 <Feather name="x" size={24} color={theme.text} />
               </Pressable>
             </View>
@@ -145,8 +137,8 @@ export default function ColorPicker({
                       name="check"
                       size={16}
                       color={
-                        ["#FFFFFF", "#E8E8E8", "#FFD700", "#FFA502"].includes(
-                          color
+                        ["#FFFFFF", "#E8E8E8", "#FFA502"].includes(
+                          color,
                         )
                           ? "#000"
                           : "#FFF"

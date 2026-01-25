@@ -38,6 +38,22 @@ yarn-error.*
 
 app-example
 
+
 # generated native folders
 /ios
 /android
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local/System files
+.local/
+.DS_Store
+
+# Generated assets and builds
+attached_assets/
+static-build/
+*.bak

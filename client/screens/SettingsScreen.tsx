@@ -9,8 +9,9 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHeaderHeight } from "@react-navigation/elements";
-import { Feather } from "@expo/vector-icons";
+import Feather from "@expo/vector-icons/Feather";
 import * as Haptics from "expo-haptics";
+import * as IntentLauncher from "expo-intent-launcher";
 
 import { ThemedText } from "@/components/ThemedText";
 import ColorPicker from "@/components/ColorPicker";
@@ -40,14 +41,57 @@ export default function SettingsScreen() {
             text: "Reset",
             style: "destructive",
             onPress: () => {
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              Haptics.notificationAsync(
+                Haptics.NotificationFeedbackType.Success,
+              );
               resetToDefaults();
             },
           },
-        ]
+        ],
       );
     }
   }, [resetToDefaults]);
+
+  const handleSetWallpaper = useCallback(async () => {
+    if (Platform.OS === "android") {
+      try {
+        // Try deep link to our specific wallpaper service
+        await IntentLauncher.startActivityAsync(
+          "android.service.wallpaper.CHANGE_LIVE_WALLPAPER",
+          {
+            extra: {
+              "android.service.wallpaper.extra.LIVE_WALLPAPER_COMPONENT":
+                "com.yearprogress.dots/.YearProgressWallpaperService",
+            },
+          }
+        );
+      } catch (e) {
+        console.warn("Failed specific wallpaper intent, trying general", e);
+        try {
+          // Fallback to general Live Wallpaper picker
+          await IntentLauncher.startActivityAsync(
+            "android.service.wallpaper.LIVE_WALLPAPER_SETTINGS"
+          );
+        } catch (e2) {
+          console.warn("Failed live wallpaper settings", e2);
+          // Fallback to generic Wallpaper settings
+          try {
+            await IntentLauncher.startActivityAsync("android.settings.WALLPAPER_SETTINGS");
+          } catch (e3) {
+            Alert.alert(
+              "Error",
+              "Could not open wallpaper settings. Please go to Settings -> Wallpaper manually."
+            );
+          }
+        }
+      }
+    } else {
+      Alert.alert(
+        "Not Supported",
+        "Live Wallpaper is only supported on Android."
+      );
+    }
+  }, []);
 
   return (
     <ScrollView
@@ -87,6 +131,26 @@ export default function SettingsScreen() {
           step={1}
           unit="px"
           onChange={(value) => updateSettings({ dotSpacing: value })}
+        />
+
+        <SettingsSlider
+          label="Top Padding"
+          value={settings.topPadding}
+          min={0}
+          max={300}
+          step={10}
+          unit="px"
+          onChange={(value) => updateSettings({ topPadding: value })}
+        />
+
+        <SettingsSlider
+          label="Columns"
+          value={settings.gridCols || 15}
+          min={7}
+          max={31}
+          step={1}
+          unit="cols"
+          onChange={(value) => updateSettings({ gridCols: value })}
         />
       </View>
 
@@ -138,6 +202,22 @@ export default function SettingsScreen() {
           value={settings.startWeekOnSunday}
           onChange={(value) => updateSettings({ startWeekOnSunday: value })}
         />
+
+        <Pressable
+          style={[
+            styles.resetButton,
+            { backgroundColor: theme.backgroundDefault, marginTop: Spacing.lg },
+          ]}
+          onPress={handleSetWallpaper}
+        >
+          <Feather name="image" size={18} color={theme.text} />
+          <ThemedText
+            type="body"
+            style={{ color: theme.text, marginLeft: Spacing.sm }}
+          >
+            Set Live Wallpaper
+          </ThemedText>
+        </Pressable>
       </View>
 
       <View style={styles.section}>
@@ -171,7 +251,10 @@ export default function SettingsScreen() {
           onPress={handleReset}
         >
           <Feather name="refresh-cw" size={18} color="#FF4757" />
-          <ThemedText type="body" style={{ color: "#FF4757", marginLeft: Spacing.sm }}>
+          <ThemedText
+            type="body"
+            style={{ color: "#FF4757", marginLeft: Spacing.sm }}
+          >
             Reset to Defaults
           </ThemedText>
         </Pressable>
