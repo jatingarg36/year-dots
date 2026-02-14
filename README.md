@@ -130,6 +130,22 @@ This project uses Expo "Prebuild" (Bare Workflow), meaning native directories (`
    - Select **Product > Archive** from the menu bar.
    - Once checking is complete, the Organizer window will open, allowing you to **Distribute App** to the App Store or Ad Hoc.
 
+## Privacy Policy
+
+The privacy policy is available at [docs/privacy-policy.html](./docs/privacy-policy.html).
+
+**For App Store submission**, you need a public URL. To host it via GitHub Pages:
+
+1. Push the `docs` folder to your repo.
+2. Go to **Settings → Pages** in your GitHub repository.
+3. Under **Source**, select **Deploy from a branch**.
+4. Select the `main` branch and `/docs` as the folder.
+5. Click **Save**. Your privacy policy will be live at:
+   ```
+   https://jatingarg36.github.io/year-dots/privacy-policy.html
+   ```
+6. Use this URL in **App Store Connect** (App Information → Privacy Policy URL) and **Google Play Console** (App content → Privacy policy).
+
 ## Documentation
 
 For more design details, see [design_guidelines.md](./design_guidelines.md).
